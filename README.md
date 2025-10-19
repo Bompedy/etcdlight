@@ -20,7 +20,7 @@ The server's `-max-db-index` flag must be greater than the client's `-ops`
 - `-fsync` *(bool)* — Enable or disable fsync call after hardstate files or WAL is written to
 - `-memory` *(bool)* — Enable or disable file accessing
 - `-fast-path-writes` *(bool)* — Enable or disable waiting for database to apply before responding to client
-- `-num-dbs` *(int)* — Number of databases to partition across
+- `-num-dbs` *(int)* — Number of databases to partition across *(>0)*
 - `-max-db-index` *(int)* — Maximum index for database to partition from
 - `-profile` *(bool)* — Enable or disable profiling
 
