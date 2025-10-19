@@ -7,7 +7,7 @@ etcd-light is a lightweight version of etcd that is not feature complete and doe
 etcd-light should only be built and ran on linux.
 
 ### Server flags
-- `-node` *(int)* — Node index
+- `-node` *(int)* — Node index, must start at 0 and be incrementing across machines
 - `-peer-connections` *(int)* — Number of peer connections
 - `-peer-listen` *(address)* — Peer listen address (e.g. `0.0.0.0:0000`)
 - `-client-listen` *(address)* — Client listen address (e.g. `0.0.0.0:0000`)
@@ -23,13 +23,13 @@ etcd-light should only be built and ran on linux.
 ### Client flags
 - `-addresses` *([]address)* — List of node addresses, comma separated (e.g. `0.0.0.0:0001,0.0.0.0:0002`)
 - `-data-size` *(int)* — Size of data in bytes
-- `-ops` *(int)* — Number of operations to complete per-client
-- `-read-ratio` *(decimal)* — Ratio of read operations
+- `-ops` *(int)* — Number of operations total
+- `-read-ratio` *(decimal)* — Ratio of read operations, *(0.0-1.0)*
 - `-clients` *(int)* — Number of concurrent connections
 - `-read-mem` *(bool)* — Read from memory only
 - `-write-mem` *(bool)* — Write to memory only
-- `-find-leader` *(bool)* — Handshakes with nodes until it is connected to the leader node for leader only communication
+- `-find-leader` *(bool)* — Enforces leader only communication
 
 #### Notes
 
-The server's `-max-db-index` flag must be greater than the client's `-ops` multiplied by `-clients`
+The server's `-max-db-index` flag must be greater than the client's `-ops`
