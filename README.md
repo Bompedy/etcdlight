@@ -5,6 +5,8 @@ etcd-light is a lightweight version of etcd that is not feature complete and doe
 ## Building and running
 
 etcd-light should only be built and ran on linux.
+go version must be 1.23.0 or later
+The server's `-max-db-index` flag must be greater than the client's `-ops`
 
 ### Server flags
 - `-node` *(int)* — Node index, must start at 0 and be incrementing across machines
@@ -29,7 +31,3 @@ etcd-light should only be built and ran on linux.
 - `-read-mem` *(bool)* — Read from memory only
 - `-write-mem` *(bool)* — Write to memory only
 - `-find-leader` *(bool)* — Enforces leader only communication
-
-#### Notes
-
-The server's `-max-db-index` flag must be greater than the client's `-ops`
