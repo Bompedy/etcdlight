@@ -213,8 +213,8 @@ func PackWriteResponsePacket(op byte, buffer []byte) []byte {
 func PackMessage(messageId uuid.UUID, ownerId uint32, data []byte, buffer []byte) []byte {
 	total := MessageSize(data)
 	copy(buffer[:16], messageId[:16])
-	binary.LittleEndian.PutUint32(buffer[16:21], ownerId)
-	binary.LittleEndian.PutUint32(buffer[20:25], uint32(len(data)))
+	binary.LittleEndian.PutUint32(buffer[16:], ownerId)
+	binary.LittleEndian.PutUint32(buffer[20:], uint32(len(data)))
 	copy(buffer[24:total], data)
 	return buffer[:total]
 }

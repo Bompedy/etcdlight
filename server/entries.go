@@ -51,8 +51,6 @@ func (s *Server) processNormalCommitEntry(entry raftpb.Entry) {
 				panic(err) // Key format error is considered fatal
 			}
 
-			fmt.Printf("Got index: %d\n", index)
-
 			// Route entry to appropriate apply channel using hash-based distribution
 			channelIndex := (index * s.flags.NumDbs) / s.flags.MaxDbIndex
 			s.applyChannels[channelIndex] <- entry.Data

@@ -164,7 +164,6 @@ func StartClient(args []string) {
 		addresses = make([]string, 1)
 		addresses[0] = leaderAddress
 		totalAddresses = 1
-		fmt.Printf("%d\n", leaderIndex)
 	}
 
 	// Calculate operations per client
@@ -407,7 +406,12 @@ func (client *Client) Warmup() {
 				key := client.Keys[i*client.NumClientOps+c]
 				warmupValue := client.WarmupValues[i*client.NumClientOps+c]
 				value := warmupValue
-				sendBuffer := shared.PackWriteMemoryPacket(key, value, buffer)
+				var sendBuffer []byte
+				if client.IsWriteMemory {
+					sendBuffer = shared.PackWriteMemoryPacket(key, value, buffer)
+				} else {
+					sendBuffer = shared.PackWritePacket(key, value, buffer)
+				}
 
 				err := shared.Write(connection, sendBuffer)
 				if err != nil {

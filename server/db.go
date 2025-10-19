@@ -4,6 +4,7 @@ import (
 	"etcd-light/shared"
 	"fmt"
 	"strconv"
+	"syscall"
 
 	"go.etcd.io/bbolt"
 )
@@ -82,10 +83,10 @@ func (s *Server) DbHandler(channel chan []byte, dbIndex int) {
 	bopts.NoGrowSync = false                   // Sync on growth
 	bopts.NoFreelistSync = true                // Faster writes, potential risk on crash
 	bopts.FreelistType = bbolt.FreelistMapType // Map-based freelist for performance
-	//bopts.MmapFlags = syscall.MAP_POPULATE     // Pre-populate page cache
-	bopts.Mlock = false                 // Don't lock memory
-	bopts.InitialMmapSize = 10737418240 // 10GB initial mmap size
-	bopts.PageSize = 0                  // Use default page size
+	bopts.MmapFlags = syscall.MAP_POPULATE     // Pre-populate page cache
+	bopts.Mlock = false                        // Don't lock memory
+	bopts.InitialMmapSize = 10737418240        // 10GB initial mmap size
+	bopts.PageSize = 0                         // Use default page size
 
 	// Open or create BoltDB database file
 	boltDb, err := bbolt.Open(fmt.Sprintf("db.%d", dbIndex), 0600, bopts)

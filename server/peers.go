@@ -76,8 +76,8 @@ func (s *Server) Trigger(index uint64) {
 	for readIndex, values := range pendingReadRequests {
 		if readIndex <= int(index) {
 			for _, value := range values {
-				keySize := binary.LittleEndian.Uint32(value.Data[22:26])
-				key := value.Data[26 : keySize+26]
+				keySize := binary.LittleEndian.Uint32(value.Data[26:30])
+				key := value.Data[30 : keySize+30]
 				index, err := strconv.Atoi(string(key))
 				if err != nil {
 					panic(err)
@@ -127,12 +127,12 @@ func (s *Server) handlePeerConnection(conn net.Conn) {
 		} else if op == shared.OpMessageBatch {
 			messages := shared.UnpackMessageBatchPacket(readBuffer[1:])
 			for _, message := range messages {
+				if message.Type == raftpb.MsgHeartbeat {
+					s.leader = uint32(message.From)
+				} else if message.Type == raftpb.MsgHeartbeatResp {
+					s.leader = uint32(s.config.ID)
+				}
 				stepChannel <- func() {
-					if message.Type == raftpb.MsgHeartbeat {
-						s.leader = uint32(message.From)
-					} else if message.Type == raftpb.MsgHeartbeatResp {
-						s.leader = uint32(s.config.ID)
-					}
 					if err := s.node.Step(context.TODO(), message); err != nil {
 						log.Printf("Step error: %v", err)
 					}
@@ -143,7 +143,7 @@ func (s *Server) handlePeerConnection(conn net.Conn) {
 
 			size := 21
 			buffer := s.GetBuffer(size)
-			binary.LittleEndian.PutUint32(buffer[0:4], uint32(size))
+			binary.LittleEndian.PutUint32(buffer[0:4], uint32(size)-4)
 			copy(buffer[5:21], messageId[:16])
 
 			if s.leader == uint32(s.config.ID) {
@@ -174,9 +174,9 @@ func (s *Server) handlePeerConnection(conn net.Conn) {
 			messageId := uuid.UUID(readBuffer[1:17])
 			size := 21
 			buffer := s.GetBuffer(size)
-			binary.LittleEndian.PutUint32(buffer[0:4], uint32(size))
-			copy(buffer[5:21], messageId[:16])
+			binary.LittleEndian.PutUint32(buffer[0:4], uint32(size-4))
 			buffer[4] = shared.OpReadIndexAck
+			copy(buffer[5:21], messageId[:16])
 			connIdx := atomic.AddUint32(&s.peerConnRoundRobins[peerIndex], 1) % uint32(s.flags.NumPeerConnections)
 			peer := s.peerConnections[peerIndex][connIdx]
 			peer.Channel <- func() {
@@ -219,7 +219,7 @@ func (s *Server) handlePeerConnection(conn net.Conn) {
 					buffer := s.GetBuffer(25)
 					connIdx := atomic.AddUint32(&s.peerConnRoundRobins[readIndexStore.Proposer-1], 1) % uint32(s.flags.NumPeerConnections)
 					peer := s.peerConnections[readIndexStore.Proposer-1][connIdx]
-					binary.LittleEndian.PutUint32(buffer[0:4], uint32(25))
+					binary.LittleEndian.PutUint32(buffer[0:4], uint32(25)-4)
 					copy(buffer[5:21], messageId[:16])
 					binary.LittleEndian.PutUint32(buffer[21:25], atomic.LoadUint32(&s.commitIndex))
 					buffer[4] = shared.OpReadIndexResp

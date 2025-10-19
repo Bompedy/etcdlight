@@ -34,7 +34,7 @@ type Server struct {
 	flags               *ServerFlags              // Server configuration flags
 	pools               *Pools                    // Buffer pools for memory management
 	applyIndex          uint64                    // Last applied log index
-	leader              uint32                    // Current leader ID (999 indicates unknown)
+	leader              uint32                    // Current leader ID
 	waiters             map[uint64][][]byte       // Map of log index to waiting client data
 	stepChannel         chan func()               // Channel for Raft step operations
 	proposeChannel      chan func()               // Channel for Raft proposal operations
@@ -128,7 +128,7 @@ func NewServer(serverFlags *ServerFlags) *Server {
 		proposeChannel:   make(chan func(), 1000000), // High-capacity channels
 		stepChannel:      make(chan func(), 1000000),
 		readIndexChannel: make(chan func(), 1000000),
-		leader:           999, // Initial unknown leader state
+		leader:           uint32(serverFlags.NodeIndex + 1),
 	}
 
 	// Start worker goroutines for processing different operation types
@@ -151,17 +151,6 @@ func NewServer(serverFlags *ServerFlags) *Server {
 	}()
 
 	s.initPool() // Initialize buffer pools
-
-	// Configure file sync behavior based on flags
-	//switch serverFlags.Flags {
-	//case "fsync":
-	//	fileFlags = syscall.O_FSYNC // Sync file data and metadata
-	//case "dsync":
-	//	fileFlags = syscall.O_DSYNC // Sync file data only
-	//case "sync":
-	//	fileFlags = syscall.O_SYNC // Sync file data and metadata (similar to O_FSYNC)
-	//	// "none" uses 0 (no additional sync flags)
-	//}
 
 	// Initialize WAL (Write-Ahead Log) files
 	for i := 0; i < serverFlags.WalFileCount; i++ {

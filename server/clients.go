@@ -98,7 +98,7 @@ func (s *Server) handleClientMessage(client shared.Client, data []byte) {
 
 		size = 21 // Fixed size for read index requests
 		buffer := s.GetBuffer(size)
-		binary.LittleEndian.PutUint32(buffer[0:4], uint32(size))
+		binary.LittleEndian.PutUint32(buffer[0:4], uint32(size)-4)
 		copy(buffer[5:21], messageId[:16])
 
 		// If this node is the leader, handle read index consensus
