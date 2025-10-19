@@ -6,6 +6,7 @@ etcd-light is a lightweight version of etcd that is not feature complete and doe
 
 etcd-light should only be built and ran on linux.
 go version must be 1.23.0 or later
+
 The server's `-max-db-index` flag must be greater than the client's `-ops`
 
 ### Server flags
